@@ -1,3 +1,5 @@
+(comment "Complex numbers")
+
 (comment "Defines a struct for a complex number")
 (defstruct complex :r :i)
 
@@ -14,7 +16,22 @@
   (struct complex (+ (a :i) (b :i)) (+ (a :r) (b :r))))
   
 (def a (struct complex 0.9 -0.1))
-		
+
+
+
+(comment "Image processing")
+
+(import '(java.awt.image BufferedImage))
+
+(defn raster "Creates an image raster to write to."
+  [width height]
+  (. (new BufferedImage width height (BufferedImage/TYPE_INT_RGB)) getRaster))
+
+
+  
+  
+(comment "And the rest...")
+
 (defn createX [y]
   (loop [all [], x -1]
     (if (< x 1)
