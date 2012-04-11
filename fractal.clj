@@ -31,12 +31,18 @@
 
 (defn draw "Draws a pixel to an image"
   [image x y r g b]
-  (.. image getRaster setPixel x y (to-array [r g b])))
+  (. (. image getRaster) setPixel x y (int-array [r g b])))
 
 (defn write-to-file "Writes an image to file."
   [image filename]
   (. ImageIO write image "png" (new File filename)))
 
+(comment "Checking image processing functions")
+(def my-image (image 100 100))
+(draw my-image 1 1 255 0 0)
+(draw my-image 2 2 255 0 0)
+(draw my-image 3 3 255 0 0)
+(write-to-file my-image "C:/Coding/temp/delme2.png")
 
   
 (comment "And the rest...")
