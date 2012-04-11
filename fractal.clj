@@ -21,15 +21,23 @@
 
 (comment "Image processing")
 
-(import '(java.awt.image BufferedImage))
+(import '(java.awt.image BufferedImage)
+        '(java.io File)
+		'(javax.imageio ImageIO))
 
-(defn raster "Creates an image raster to write to."
+(defn image "Creates an image to write to."
   [width height]
-  (. (new BufferedImage width height (BufferedImage/TYPE_INT_RGB)) getRaster))
+  (new BufferedImage width height (BufferedImage/TYPE_INT_RGB)))
 
-(defn draw "Draws a pixel to a raster"
-  [raster x y r g b]
-  (. raster setPixel x y (to-array [r g b])))
+(defn draw "Draws a pixel to an image"
+  [image x y r g b]
+  (.. image getRaster setPixel x y (to-array [r g b])))
+
+(defn write-to-file "Writes an image to file."
+  [image filename]
+  (. ImageIO write image "png" (new File filename)))
+
+
   
 (comment "And the rest...")
 
