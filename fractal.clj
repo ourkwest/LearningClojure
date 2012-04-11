@@ -27,8 +27,9 @@
   [width height]
   (. (new BufferedImage width height (BufferedImage/TYPE_INT_RGB)) getRaster))
 
-
-  
+(defn draw "Draws a pixel to a raster"
+  [raster x y r g b]
+  (. raster setPixel x y (to-array [r g b])))
   
 (comment "And the rest...")
 
