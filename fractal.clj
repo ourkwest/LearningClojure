@@ -31,18 +31,12 @@
 
 (defn draw "Draws a pixel to an image"
   [image x y r g b]
-  (. (. image getRaster) setPixel x y (int-array [r g b])))
+  (. (. image getRaster) setPixel (int x) (int y) (int-array [r g b])))
 
 (defn write-to-file "Writes an image to file."
   [image filename]
   (. ImageIO write image "png" (new File filename)))
 
-(comment "Checking image processing functions")
-(def my-image (image 100 100))
-(draw my-image 1 1 255 0 0)
-(draw my-image 2 2 255 0 0)
-(draw my-image 3 3 255 0 0)
-(write-to-file my-image "C:/Coding/temp/delme2.png")
 
   
 (comment "And the rest...")
@@ -60,17 +54,29 @@
 	  all)))
   
 (defn iterator "create an iterator function"
-  [c]
+  [c image]
   (fn [cpx] 
     (loop [a cpx, limit 100] 
 	  (if (> (magn a) 4)
-	    " "
-		(if (< limit 0)
-		  "O"
+	    (do
+		  (draw image (+ (* (cpx :r) 30) 50) (+ (* (cpx :i) 30) 50) 255 255 255)
+		  " ")
+	    (if (< limit 0)
+		  (do
+		    (draw image (+ (* (cpx :r) 30) 50) (+ (* (cpx :i) 30) 50) 255 0 0)
+			"O")
 		  (recur (addc (mult a a) c), (dec limit)))))))
 		  
 (defn fractal "Draws a Fractal"
-  [c]
-  (map (fn [coll] (println (map (iterator c) coll))) (createY)))
+  [c image]
+  (map (fn [coll] (println (map (iterator c image) coll))) (createY)))
   
-(fractal a)
+  
+  
+(def my-image (image 100 100))
+(defn write 
+  []
+  (write-to-file my-image "C:/Coding/temp/delme2.png"))
+
+(fractal a my-image)
+
