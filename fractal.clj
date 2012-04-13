@@ -1,6 +1,7 @@
 (comment "Complex numbers")
 
 (defstruct complex :r :i)
+(defstruct complex-space :p1 :p2)
 
 (defn mult "Multiplies one complex number by another"
   [a, b]
@@ -16,6 +17,7 @@
   [a, b]
   (struct complex (+ (a :i) (b :i)) (+ (a :r) (b :r))))
   
+
 
 (comment "Image processing")
 
@@ -35,18 +37,22 @@
   [image filename]
   (. ImageIO write image "png" (new File filename)))
 
+(def red (int (* (rand) 255)))
+(def grn (int (* (rand) 255)))
+(def blu (int (* (rand) 255)))
+  
 (defn make-colour "Turn a single value into an int-array representing a colour"
   [value]
   (int-array [
-    (mod (* value 53) 255) 
-	(mod (* value 27) 255) 
-	(mod (* value 13) 255)]))
+    (mod (* value red) 255) 
+	(mod (* value grn) 255) 
+	(mod (* value blu) 255)]))
   
 (comment "And the rest...")
 
 (def a (struct complex 0.9 -0.1))
 
-(def img-radius 500)
+(def img-radius 150)
 (def cpx-radius 2)
 (def step (/ cpx-radius img-radius))
 (def cpx-points 
@@ -56,17 +62,24 @@
 (def img (image (* img-radius 2) (* img-radius 2)))
 
 (defn make-iterator "Make an iterator function."
-  [c image]
+  [c]
   (fn [cpx] 
     (loop [a cpx, limit 100] 
 	  (if (> (magn a) (* cpx-radius cpx-radius))
-	    (draw image (+ (/ (cpx :r) step) img-radius) (+ (/ (cpx :i) step) img-radius) (make-colour limit))
+	    [cpx (make-colour limit)]
 		(if (< limit 0)
-		  (draw image (+ (/ (cpx :r) step) img-radius) (+ (/ (cpx :i) step) img-radius) (make-colour 0))
+		  [cpx (make-colour 0)]
 		  (recur (addc (mult a a) c), (dec limit)))))))
-
-(def iter (make-iterator a img))
+  
+(defn make-renderer
+  [image]
+  (fn [cpx-colour] 
+    (let [[cpx colour] cpx-colour half-size (/ (. image getWidth) 2)]
+      (draw image (+ (/ (cpx :r) step) half-size) (+ (/ (cpx :i) step) half-size) colour))
+  ))
+		  
+(def iter (make-iterator a))
 (defn write [] (write-to-file img "C:/Coding/temp/writeme.png"))
 
-(map iter cpx-points)
+(map (make-renderer img) (map iter cpx-points))
 
