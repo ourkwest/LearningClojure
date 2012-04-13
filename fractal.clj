@@ -27,15 +27,20 @@
   [width height]
   (new BufferedImage width height (BufferedImage/TYPE_INT_RGB)))
 
-(defn draw "Draws a pixel to an image"
-  [image x y r g b]
-  (. (. image getRaster) setPixel (int x) (int y) (int-array [r g b])))
+(defn draw "Draws a colour to a pixel of an image"
+  [image x y c]
+  (. (. image getRaster) setPixel (int x) (int y) c))
 
 (defn write-to-file "Writes an image to file."
   [image filename]
   (. ImageIO write image "png" (new File filename)))
 
-
+(defn make-colour "Turn a single value into an int-array representing a colour"
+  [value]
+  (int-array [
+    (mod (* value 53) 255) 
+	(mod (* value 27) 255) 
+	(mod (* value 13) 255)]))
   
 (comment "And the rest...")
 
@@ -55,13 +60,13 @@
   (fn [cpx] 
     (loop [a cpx, limit 100] 
 	  (if (> (magn a) (* cpx-radius cpx-radius))
-	    (draw image (+ (/ (cpx :r) step) img-radius) (+ (/ (cpx :i) step) img-radius) limit (* limit 2) 255)
+	    (draw image (+ (/ (cpx :r) step) img-radius) (+ (/ (cpx :i) step) img-radius) (make-colour limit))
 		(if (< limit 0)
-		  (draw image (+ (/ (cpx :r) step) img-radius) (+ (/ (cpx :i) step) img-radius) 255 0 0)
+		  (draw image (+ (/ (cpx :r) step) img-radius) (+ (/ (cpx :i) step) img-radius) (make-colour 0))
 		  (recur (addc (mult a a) c), (dec limit)))))))
 
 (def iter (make-iterator a img))
-(defn write [] (write-to-file img "C:/Coding/temp/delme.png"))
+(defn write [] (write-to-file img "C:/Coding/temp/writeme.png"))
 
 (map iter cpx-points)
 
