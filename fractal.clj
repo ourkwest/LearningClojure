@@ -1,11 +1,12 @@
 (comment "Complex numbers")
 
-(comment "Defines a struct for a complex number")
 (defstruct complex :r :i)
 
 (defn mult "Multiplies one complex number by another"
   [a, b]
-  (struct complex (- (* (a :r) (b :r)) (* (a :i) (b :i))) (+ (* (a :r) (b :i)) (* (a :i) (b :r)))))
+  (struct complex 
+    (- (* (a :r) (b :r)) (* (a :i) (b :i))) 
+	(+ (* (a :r) (b :i)) (* (a :i) (b :r)))))
 
 (defn magn "Measure the squared magnitude of a complex number"
   [cpx]
@@ -15,9 +16,6 @@
   [a, b]
   (struct complex (+ (a :i) (b :i)) (+ (a :r) (b :r))))
   
-(def a (struct complex 0.9 -0.1))
-
-
 
 (comment "Image processing")
 
@@ -41,42 +39,29 @@
   
 (comment "And the rest...")
 
-(defn createX [y]
-  (loop [all [], x -1]
-    (if (< x 1)
-	  (recur (conj all (struct complex x y)), (+ x (/ 1 60)))
-	  all)))
-	  
-(defn createY []
-  (loop [all [], y (/ -3 2)]
-    (if (< y (/ 3 2))
-	  (recur (conj all (createX y)), (+ y (/ 1 60)))
-	  all)))
-  
-(defn iterator "create an iterator function"
+(def a (struct complex 0.9 -0.1))
+
+(def img-radius 500)
+(def cpx-radius 2)
+(def step (/ cpx-radius img-radius))
+(def cpx-points 
+  (let [cpx-range (range (- cpx-radius) (+ cpx-radius 0) step)]
+    (for [x cpx-range y cpx-range] (struct complex x y))))
+
+(def img (image (* img-radius 2) (* img-radius 2)))
+
+(defn make-iterator "Make an iterator function."
   [c image]
   (fn [cpx] 
     (loop [a cpx, limit 100] 
-	  (if (> (magn a) 4)
-	    (do
-		  (draw image (+ (* (cpx :r) 30) 50) (+ (* (cpx :i) 30) 50) 255 255 255)
-		  " ")
-	    (if (< limit 0)
-		  (do
-		    (draw image (+ (* (cpx :r) 30) 50) (+ (* (cpx :i) 30) 50) 255 0 0)
-			"O")
+	  (if (> (magn a) (* cpx-radius cpx-radius))
+	    (draw image (+ (/ (cpx :r) step) img-radius) (+ (/ (cpx :i) step) img-radius) limit (* limit 2) 255)
+		(if (< limit 0)
+		  (draw image (+ (/ (cpx :r) step) img-radius) (+ (/ (cpx :i) step) img-radius) 255 0 0)
 		  (recur (addc (mult a a) c), (dec limit)))))))
-		  
-(defn fractal "Draws a Fractal"
-  [c image]
-  (map (fn [coll] (println (map (iterator c image) coll))) (createY)))
-  
-  
-  
-(def my-image (image 100 100))
-(defn write 
-  []
-  (write-to-file my-image "C:/Coding/temp/delme2.png"))
 
-(fractal a my-image)
+(def iter (make-iterator a img))
+(defn write [] (write-to-file img "C:/Coding/temp/delme.png"))
+
+(map iter cpx-points)
 
