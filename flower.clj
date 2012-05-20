@@ -16,7 +16,8 @@
 
 (defn draw "Draws a colour to a pixel of an image"
   [image x y c]
-  (. (. image getRaster) setPixel (int x) (int y) c))
+  (if (and (> x -1) (> y -1) (< x (. image getWidth)) (< y (. image getHeight)))
+    (. image setRGB (int x) (int y) c)))
 
 (defn write-to-file "Writes an image to file."
   [image filename]
@@ -28,21 +29,22 @@
 
 (comment "geometry")
 
-(defstruct place :x :y :r :s)
+(defstruct place :x :y :r :s :c)
 (defn addplace 
   [p2 p1]
   (struct place 
     (+ (p1 :x) (* (. Math sin (p1 :r)) (p2 :x) (p1 :s)) (* (. Math cos (p1 :r)) (p2 :y) (p1 :s) -1))
 	(+ (p1 :y) (* (. Math cos (p1 :r)) (p2 :x) (p1 :s)) (* (. Math sin (p1 :r)) (p2 :y) (p1 :s)))
 	(+ (p1 :r) (p2 :r))
-	(* (p1 :s) (p2 :s))))
+	(* (p1 :s) (p2 :s))
+	(* (p1 :c) (p2 :c))))
 	
-(def centre (struct place 200 200 0 1))
-(def step1 (struct place 0.75 0.75 0.1 0.99))
+(def centre (struct place 200 200 0 1 1))
+(def step1 (struct place 0.1 0.1 0.08 1.01 1.1))
 
 (defn drawplace
   [p]
-  (draw img (p :x) (p :y) (colour 255 25 150)))
+  (draw img (p :x) (p :y) (int (p :c))))
 
 (defn writeplace
   [p]
@@ -54,5 +56,5 @@
   
 (defn play
   []
-  (map drawplace (take 150 (curve))))
+  (map drawplace (take 200 (curve))))
 
