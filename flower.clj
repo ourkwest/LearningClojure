@@ -52,19 +52,7 @@
   []
   (iterate (partial addplace step1) centre))
   
-(defn play1
+(defn play
   []
   (map drawplace (take 150 (curve))))
 
-(defn point [[x y]] (draw img x y (colour 25 255 150)))
-
-(defn line [x y dx dy]
-  (map point (take 20 (iterate (fn [[u v]] [(+ u dx) (+ v dy)]) [x y]))))
-
-(comment "play")
-
-(defn play "Whatever...?"
-  []
-  (let [img (image 400 400)]
-    (draw img 10 10 (colour 25 255 150))
-	(write-to-file img "C:/Coding/temp/writeme2.png")))
