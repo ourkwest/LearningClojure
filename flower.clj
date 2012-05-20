@@ -28,16 +28,17 @@
 
 (comment "geometry")
 
-(defstruct place :x :y :r)
+(defstruct place :x :y :r :s)
 (defn addplace 
   [p2 p1]
   (struct place 
-    (+ (p1 :x) (* (. Math sin (p1 :r)) (p2 :x)) (* (. Math cos (p1 :r)) (p2 :y) -1))
-	(+ (p1 :y) (* (. Math cos (p1 :r)) (p2 :x)) (* (. Math sin (p1 :r)) (p2 :y)))
-	(+ (p1 :r) (p2 :r))))
+    (+ (p1 :x) (* (. Math sin (p1 :r)) (p2 :x) (p1 :s)) (* (. Math cos (p1 :r)) (p2 :y) (p1 :s) -1))
+	(+ (p1 :y) (* (. Math cos (p1 :r)) (p2 :x) (p1 :s)) (* (. Math sin (p1 :r)) (p2 :y) (p1 :s)))
+	(+ (p1 :r) (p2 :r))
+	(* (p1 :s) (p2 :s))))
 	
-(def centre (struct place 200 200 0))
-(def step1 (struct place 0.5 0.5 0.1))
+(def centre (struct place 200 200 0 1))
+(def step1 (struct place 0.75 0.75 0.1 0.99))
 
 (defn drawplace
   [p]
@@ -53,7 +54,7 @@
   
 (defn play1
   []
-  (map drawplace (take 20 (curve))))
+  (map drawplace (take 150 (curve))))
 
 (defn point [[x y]] (draw img x y (colour 25 255 150)))
 
