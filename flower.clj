@@ -20,12 +20,12 @@
     (. image setRGB (int x) (int y) c)))
 
 (defn write-to-file "Writes an image to file."
-  [image filename]
-  (. ImageIO write image "png" (new File filename)))
+  [image f]
+  (. ImageIO write image "png" (new File f)))
 
 (defn filename
   [arg]
-  (str (System/getProperty "user.dir") "/deleteme_" arg))
+  (str (System/getProperty "user.dir") "/deleteme" arg))
   
 (def img (image 400 400))
 (defn done [] (write-to-file img (filename ".png")))
@@ -34,24 +34,14 @@
   [filename]
   (. (new File filename) exists))
   
-(let [filename (filename ".html")]
-  (if (not (file-exists? filename)) (spit "") )
-  )
+(def html (str "<html><body><img src=\"" (filename ".png") "\"/></body></html>"))
+  
+(let [f (filename ".html")]
+  (if (not (file-exists? f)) (spit f html)))
 
 (comment "geometry")
 
 (defstruct place :x :y :r :s :c)
-(defn addplace 
-  [p2 p1]
-  (struct place 
-    (+ (p1 :x) (* (. Math sin (p1 :r)) (p2 :x) (p1 :s)) (* (. Math cos (p1 :r)) (p2 :y) (p1 :s) -1))
-	(+ (p1 :y) (* (. Math cos (p1 :r)) (p2 :x) (p1 :s)) (* (. Math sin (p1 :r)) (p2 :y) (p1 :s)))
-	(+ (p1 :r) (p2 :r))
-	(* (p1 :s) (p2 :s))
-	(* (p1 :c) (p2 :c))))
-	
-(def centre (struct place 200 200 0 1 1))
-(def step1 (struct place 0.1 0.1 0.08 1.01 1.1))
 
 (defn drawplace
   [p]
@@ -60,6 +50,27 @@
 (defn writeplace
   [p]
   (println p))
+
+(defn addplace 
+  [p2 p1]
+  (do
+    (drawplace p1)
+    (struct place 
+      (+ (p1 :x) (* (. Math sin (p1 :r)) (p2 :x) (p1 :s)) (* (. Math cos (p1 :r)) (p2 :y) (p1 :s) -1))
+	  (+ (p1 :y) (* (. Math cos (p1 :r)) (p2 :x) (p1 :s)) (* (. Math sin (p1 :r)) (p2 :y) (p1 :s)))
+	  (+ (p1 :r) (p2 :r))
+	  (* (p1 :s) (p2 :s))
+	  (p1 :c))))
+	
+(def centre (struct place 200 200 0 1 (* 255 255 255)))
+(def step1 (struct place 1 1 0.08 1 (* 255 255 255)))
+(def step2 (struct place 1 -1 0.18 1 (* 255 255)))
+(def fn1 (partial addplace step1))
+(def fn2 (partial addplace step2))
+
+
+
+(comment "spiral")
   
 (defn curve
   []
@@ -76,6 +87,21 @@
 
 (def my-tree [println [println println]] )
 
+(declare apply-child)
+
+(defn apply-tree
+  [inp fns]
+  (apply-child ((first fns) inp) (rest fns)))
+	
+(defn apply-child
+  [inp coll]
+  (if (not (empty? coll))
+	(do 
+	  (apply-tree inp (first coll))
+      (apply-child inp (rest coll)))))
+	
+  
+(comment
 (defn apply-tree
   [myinput funcs]
   (if (not (coll? funcs))
@@ -83,9 +109,36 @@
 	(if (not (empty? funcs))
       (do 
 	    (apply-tree myinput (first funcs))
-	    (apply-tree myinput (rest funcs))
+	    (apply-tree ((first funcs) myinput) (rest funcs))
 	  )
     )
   )
 )
+)
+
+(comment "fun")
+
+(def doo-dah 
+  [fn1 
+    [fn1 
+	  [fn1 
+	    [fn1 [fn1 [fn1 [fn1 [fn1 [fn1 [fn1 [fn1]]]]]]]]
+	  ] 
+	  [fn2 
+	    [fn1 [fn1 [fn1 [fn1 [fn1 [fn1 [fn1 [fn1]]]]]]]]
+	  ]
+	]
+  ]
+)
+
+(defn link
+  [leaf stalk reps]
+  (loop [leaf leaf stalk stalk reps reps]
+    (if (< reps 1)
+	  leaf
+	  (recur [stalk leaf] stalk (dec reps)))))
+
+(defn fun 
+  []
+  (apply-tree centre doo-dah))
 
