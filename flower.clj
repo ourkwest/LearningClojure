@@ -23,9 +23,20 @@
   [image filename]
   (. ImageIO write image "png" (new File filename)))
 
+(defn filename
+  [arg]
+  (str (System/getProperty "user.dir") "/deleteme_" arg))
+  
 (def img (image 400 400))
-(defn done [] (write-to-file img "C:/Coding/temp/writeme2.png"))
+(defn done [] (write-to-file img (filename ".png")))
 
+(defn file-exists?
+  [filename]
+  (. (new File filename) exists))
+  
+(let [filename (filename ".html")]
+  (if (not (file-exists? filename)) (spit "") )
+  )
 
 (comment "geometry")
 
@@ -57,4 +68,24 @@
 (defn play
   []
   (map drawplace (take 200 (curve))))
+
+
+  
+  
+(comment "tree")
+
+(def my-tree [println [println println]] )
+
+(defn apply-tree
+  [myinput funcs]
+  (if (not (coll? funcs))
+	(funcs myinput)
+	(if (not (empty? funcs))
+      (do 
+	    (apply-tree myinput (first funcs))
+	    (apply-tree myinput (rest funcs))
+	  )
+    )
+  )
+)
 
