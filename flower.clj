@@ -60,11 +60,11 @@
 	  (+ (p1 :y) (* (. Math cos (p1 :r)) (p2 :x) (p1 :s)) (* (. Math sin (p1 :r)) (p2 :y) (p1 :s)))
 	  (+ (p1 :r) (p2 :r))
 	  (* (p1 :s) (p2 :s))
-	  (p1 :c))))
+	  (mod (* (p1 :c) (p2 :c)) (* 255 255 255)))))
 	
-(def centre (struct place 200 200 0 1 (* 255 255 255)))
-(def step1 (struct place 0 1 0.08 1.01 (* 255 255 255)))
-(def step2 (struct place 0 1 -0.04 0.99 (* 255 255)))
+(def centre (struct place 200 200 0 1 3))
+(def step1 (struct place 0 1 0.08 1.01 5))
+(def step2 (struct place 0 1 -0.04 0.99 7))
 (def fn1 (partial addplace step1))
 (def fn2 (partial addplace step2))
 
