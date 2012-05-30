@@ -63,8 +63,8 @@
 	  (p1 :c))))
 	
 (def centre (struct place 200 200 0 1 (* 255 255 255)))
-(def step1 (struct place 1 1 0.08 1 (* 255 255 255)))
-(def step2 (struct place 1 -1 0.18 1 (* 255 255)))
+(def step1 (struct place 0 1 0.08 1.01 (* 255 255 255)))
+(def step2 (struct place 0 1 -0.04 0.99 (* 255 255)))
 (def fn1 (partial addplace step1))
 (def fn2 (partial addplace step2))
 
@@ -118,19 +118,6 @@
 
 (comment "fun")
 
-(def doo-dah 
-  [fn1 
-    [fn1 
-	  [fn1 
-	    [fn1 [fn1 [fn1 [fn1 [fn1 [fn1 [fn1 [fn1]]]]]]]]
-	  ] 
-	  [fn2 
-	    [fn1 [fn1 [fn1 [fn1 [fn1 [fn1 [fn1 [fn1]]]]]]]]
-	  ]
-	]
-  ]
-)
-
 (defn link
   [leaf stalk reps]
   (loop [leaf leaf stalk stalk reps reps]
@@ -138,7 +125,12 @@
 	  leaf
 	  (recur [stalk leaf] stalk (dec reps)))))
 
+(def d1 (link [fn1] fn1 20))
+(def d2 (link [fn2] fn2 20))
+(def d3 [fn1 d1 d2])
+(def d4 (link d3 fn1 20))
+	  
 (defn fun 
   []
-  (apply-tree centre doo-dah))
+  (apply-tree centre d4))
 
