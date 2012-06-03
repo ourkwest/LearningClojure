@@ -27,7 +27,7 @@
   [arg]
   (str (System/getProperty "user.dir") "/deleteme" arg))
   
-(def img (image 400 400))
+(def img (image 800 800))
 (defn done [] (write-to-file img (filename ".png")))
 
 (defn file-exists?
@@ -56,21 +56,71 @@
   (do
     (drawplace p1)
     (struct place 
-      (+ (p1 :x) (* (. Math sin (p1 :r)) (p2 :x) (p1 :s)) (* (. Math cos (p1 :r)) (p2 :y) (p1 :s) -1))
-	  (+ (p1 :y) (* (. Math cos (p1 :r)) (p2 :x) (p1 :s)) (* (. Math sin (p1 :r)) (p2 :y) (p1 :s)))
+      (+ (p1 :x) (* (. Math cos (p1 :r)) (p2 :x) (p1 :s)) (* (. Math sin (p1 :r)) (p2 :y) (p1 :s)))
+	  (+ (p1 :y) (* (. Math sin (p1 :r)) (p2 :x) (p1 :s)) (* (. Math cos (p1 :r)) (p2 :y) (p1 :s) -1))
 	  (+ (p1 :r) (p2 :r))
 	  (* (p1 :s) (p2 :s))
 	  (mod (* (p1 :c) (p2 :c)) (* 255 255 255)))))
 	
-(def centre (struct place 200 200 0 1 3))
+(def centre (struct place 400 400 0 1 3))
 (def step1 (struct place 0 1 0.08 1.01 5))
 (def step2 (struct place 0 1 -0.04 0.99 7))
 (def fn1 (partial addplace step1))
 (def fn2 (partial addplace step2))
 
+(comment 
+(defn compose
+  [pt1 fn1 & fns]
+  (fn [p2] (let [p3 (fn1 pt1)] apply fns p3)))
+)
+  
+(defn f-then
+  [fn1 fn2]
+  (fn [arg] (fn2 (fn1 arg))))
+  
+(defn f-both
+  [fn1 fn2]
+  (fn [arg] (do (fn1 arg) (fn2 arg))))
+  
+(defn f-dup
+  [f n]
+  (fn [arg] 
+    (loop [arg arg n n]
+	  (if (< n 1) 
+	    arg
+		(recur (f arg) (dec n))))))
+		
+(defn f-tree
+  [fn1 fn2 n]
+  (loop [fna fn1 fnb fn2 n n]
+    (if (< n 1) 
+	  fna
+	  (recur (f-then fn1 (f-both fna fnb)) (f-then fn2 (f-both fnb fna)) (dec n)))))
+		
+		
+(comment "fractal tree")
+(comment "                                x y r s c")
+(def fn-a (partial addplace (struct place 0 1 0.01 1 5)))
+(def fn-b (partial addplace (struct place 0 1 -0.01 1 7)))
+(def fn-s (partial addplace (struct place 0 0 -0.1 0.75 1)))
+
+(def fn-c (f-then fn-s (f-dup fn-a 50)))
+(def fn-d (f-then fn-s (f-dup fn-b 55)))
+
+(def fn-e 
+  (f-then 
+    fn-c
+    (f-both
+      (f-then fn-c (f-both fn-c fn-d))
+      (f-then fn-d (f-both fn-c fn-d)))))
+	  
+(def fn-f (f-tree fn-c fn-d 9))
+
+(defn fun []
+  (fn-f centre))
 
 
-(comment "spiral")
+(comment "spiral"
   
 (defn curve
   []
@@ -79,11 +129,10 @@
 (defn play
   []
   (map drawplace (take 200 (curve))))
-
-
+)
+ 
   
-  
-(comment "tree")
+(comment "tree"
 
 (def my-tree [println [println println]] )
 
@@ -115,8 +164,9 @@
   )
 )
 )
+)
 
-(comment "fun")
+(comment "fun"
 
 (defn link
   [leaf stalk reps]
@@ -133,4 +183,4 @@
 (defn fun 
   []
   (apply-tree centre d4))
-
+)
