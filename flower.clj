@@ -46,6 +46,10 @@
 (defn drawplace
   [p]
   (draw img (p :x) (p :y) (int (p :c))))
+  
+(defn drawblob
+  [p pr]
+  (dorun (map (fn [r] (drawplace (addplace pr (assoc p :r r)))) (range 0 6))))
 
 (defn writeplace
   [p]
@@ -53,20 +57,24 @@
 
 (defn addplace 
   [p2 p1]
+  (struct place 
+    (+ (p1 :x) (* (. Math cos (p1 :r)) (p2 :x) (p1 :s)) (* (. Math sin (p1 :r)) (p2 :y) (p1 :s)))
+	(+ (p1 :y) (* (. Math sin (p1 :r)) (p2 :x) (p1 :s)) (* (. Math cos (p1 :r)) (p2 :y) (p1 :s) -1))
+	(+ (p1 :r) (p2 :r))
+	(* (p1 :s) (p2 :s))
+	(mod (* (p1 :c) (p2 :c)) (* 255 255 255))))
+	  
+(defn draw-addplace
+  [p2 p1]
   (do
-    (drawplace p1)
-    (struct place 
-      (+ (p1 :x) (* (. Math cos (p1 :r)) (p2 :x) (p1 :s)) (* (. Math sin (p1 :r)) (p2 :y) (p1 :s)))
-	  (+ (p1 :y) (* (. Math sin (p1 :r)) (p2 :x) (p1 :s)) (* (. Math cos (p1 :r)) (p2 :y) (p1 :s) -1))
-	  (+ (p1 :r) (p2 :r))
-	  (* (p1 :s) (p2 :s))
-	  (mod (* (p1 :c) (p2 :c)) (* 255 255 255)))))
+    (drawblob p1 (struct place 0 2 0 1 1))
+	(addplace p2 p1)))
 	
 (def centre (struct place 400 400 0 1 3))
 (def step1 (struct place 0 1 0.08 1.01 5))
 (def step2 (struct place 0 1 -0.04 0.99 7))
-(def fn1 (partial addplace step1))
-(def fn2 (partial addplace step2))
+(def fn1 (partial draw-addplace step1))
+(def fn2 (partial draw-addplace step2))
 
 (comment 
 (defn compose
@@ -100,12 +108,12 @@
 		
 (comment "fractal tree")
 (comment "                                x y r s c")
-(def fn-a (partial addplace (struct place 0 1 0.01 1 5)))
-(def fn-b (partial addplace (struct place 0 1 -0.01 1 7)))
-(def fn-s (partial addplace (struct place 0 0 -0.1 0.75 1)))
+(def fn-a (partial draw-addplace (struct place 0 1 0.01 1 5)))
+(def fn-b (partial draw-addplace (struct place 0 1 -0.01 1 7)))
+(def fn-s (partial draw-addplace (struct place 0 0 -0.1 0.75 1)))
 
-(def fn-c (f-then fn-s (f-dup fn-a 50)))
-(def fn-d (f-then fn-s (f-dup fn-b 55)))
+(def fn-c (f-then fn-s (f-dup fn-a 150)))
+(def fn-d (f-then fn-s (f-dup fn-b 175)))
 
 (def fn-e 
   (f-then 
@@ -117,70 +125,5 @@
 (def fn-f (f-tree fn-c fn-d 9))
 
 (defn fun []
-  (fn-f centre))
-
-
-(comment "spiral"
-  
-(defn curve
-  []
-  (iterate (partial addplace step1) centre))
-  
-(defn play
-  []
-  (map drawplace (take 200 (curve))))
-)
- 
-  
-(comment "tree"
-
-(def my-tree [println [println println]] )
-
-(declare apply-child)
-
-(defn apply-tree
-  [inp fns]
-  (apply-child ((first fns) inp) (rest fns)))
-	
-(defn apply-child
-  [inp coll]
-  (if (not (empty? coll))
-	(do 
-	  (apply-tree inp (first coll))
-      (apply-child inp (rest coll)))))
-	
-  
-(comment
-(defn apply-tree
-  [myinput funcs]
-  (if (not (coll? funcs))
-	(funcs myinput)
-	(if (not (empty? funcs))
-      (do 
-	    (apply-tree myinput (first funcs))
-	    (apply-tree ((first funcs) myinput) (rest funcs))
-	  )
-    )
-  )
-)
-)
-)
-
-(comment "fun"
-
-(defn link
-  [leaf stalk reps]
-  (loop [leaf leaf stalk stalk reps reps]
-    (if (< reps 1)
-	  leaf
-	  (recur [stalk leaf] stalk (dec reps)))))
-
-(def d1 (link [fn1] fn1 20))
-(def d2 (link [fn2] fn2 20))
-(def d3 [fn1 d1 d2])
-(def d4 (link d3 fn1 20))
-	  
-(defn fun 
-  []
-  (apply-tree centre d4))
-)
+  (fn-f centre)
+  (fn-f (assoc centre :r (Math/PI))))
