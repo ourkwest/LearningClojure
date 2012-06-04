@@ -39,6 +39,7 @@
 (let [f (filename ".html")]
   (if (not (file-exists? f)) (spit f html)))
 
+  
 (comment "geometry")
 
 (defstruct place :x :y :r :s :c)
@@ -71,16 +72,6 @@
 	(addplace p2 p1)))
 	
 (def centre (struct place 400 400 0 1 3))
-(def step1 (struct place 0 1 0.08 1.01 5))
-(def step2 (struct place 0 1 -0.04 0.99 7))
-(def fn1 (partial draw-addplace step1))
-(def fn2 (partial draw-addplace step2))
-
-(comment 
-(defn compose
-  [pt1 fn1 & fns]
-  (fn [p2] (let [p3 (fn1 pt1)] apply fns p3)))
-)
   
 (defn f-then
   [fn1 fn2]
@@ -107,20 +98,13 @@
 		
 		
 (comment "fractal tree")
-(comment "                                x y r s c")
+(comment "                                     x y r s c")
 (def fn-a (partial draw-addplace (struct place 0 1 0.01 1 5)))
 (def fn-b (partial draw-addplace (struct place 0 1 -0.01 1 7)))
 (def fn-s (partial draw-addplace (struct place 0 0 -0.1 0.75 1)))
 
 (def fn-c (f-then fn-s (f-dup fn-a 150)))
 (def fn-d (f-then fn-s (f-dup fn-b 175)))
-
-(def fn-e 
-  (f-then 
-    fn-c
-    (f-both
-      (f-then fn-c (f-both fn-c fn-d))
-      (f-then fn-d (f-both fn-c fn-d)))))
 	  
 (def fn-f (f-tree fn-c fn-d 9))
 
