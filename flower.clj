@@ -6,7 +6,7 @@
         '(java.io File)
 		'(javax.imageio ImageIO))
 
-(defn colour "Creates an colour as an array of 3 integers."
+(defn colour "Creates a colour as an array of 3 integers."
   [r g b]
   (int-array [r g b]))
 		
