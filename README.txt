@@ -12,7 +12,9 @@ The image will currently be spat out at "C:\Coding\temp".
 2) A branching tree fractal plotter.
 
 Run 
-(load-file "<path_to_git_repo>/flower.clj") 
+(load-file "<path_to_git_repo>/flower.clj")
+(fun) ;May take a while to complete.
+(done)
 at the Clojure REPL to plot a squiggely pattern.
 The image will currently be viewable at "deleteme.html" in the user directory (as determined by the JVM). 
 

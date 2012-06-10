@@ -9,6 +9,12 @@
 (defn colour "Creates a colour as an array of 3 integers."
   [r g b]
   (int-array [r g b]))
+  
+  
+(defn make-colour "test annonymous function overloading by arity"
+  [r g b]
+  (fn [other] (println r g b other)))
+  
 		
 (defn image "Creates an image to write to."
   [width height]
@@ -48,10 +54,6 @@
   [p]
   (draw img (p :x) (p :y) (int (p :c))))
   
-(defn drawblob
-  [p pr]
-  (dorun (map (fn [r] (drawplace (addplace pr (assoc p :r r)))) (range 0 6))))
-
 (defn writeplace
   [p]
   (println p))
@@ -64,7 +66,11 @@
 	(+ (p1 :r) (p2 :r))
 	(* (p1 :s) (p2 :s))
 	(mod (* (p1 :c) (p2 :c)) (* 255 255 255))))
-	  
+
+(defn drawblob
+  [p pr]
+  (dorun (map (fn [r] (drawplace (addplace pr (assoc p :r r)))) (range 0 6))))
+	
 (defn draw-addplace
   [p2 p1]
   (do
